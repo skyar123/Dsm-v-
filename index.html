@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSM-5-TR Learning Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .score-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .score-item h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .score-item .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .game-mode {
+            display: none;
+        }
+
+        .game-mode.active {
+            display: block;
+        }
+
+        .menu-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .question-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8ecff;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .option-text {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .feedback {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .feedback.incorrect {
+            border-left-color: #f44336;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-container h2 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .results-container .score-display {
+            font-size: 4em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .disorder-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .disorder-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .disorder-info p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .criteria-list {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .criteria-list li {
+            margin-left: 20px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card h4 {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 DSM-5-TR Learning Game</h1>
+            <p>Master Mental Health Diagnostic Criteria</p>
+        </div>
+
+        <!-- Score Board -->
+        <div class="score-board">
+            <div class="score-item">
+                <h3>Total Score</h3>
+                <div class="value" id="totalScore">0</div>
+            </div>
+            <div class="score-item">
+                <h3>Questions</h3>
+                <div class="value" id="totalQuestions">0/0</div>
+            </div>
+            <div class="score-item">
+                <h3>Accuracy</h3>
+                <div class="value" id="accuracy">0%</div>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="game-mode active">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p style="color: #666; font-size: 1.1em; margin-bottom: 20px;">Select a game mode to begin learning about DSM-5-TR disorders</p>
+            </div>
+            <div class="menu-buttons">
+                <button class="btn-primary" onclick="startQuiz('all')">🎯 Full Quiz (All Disorders)</button>
+                <button class="btn-primary" onclick="startQuiz('mood')">😔 Mood Disorders</button>
+                <button class="btn-primary" onclick="startQuiz('anxiety')">😰 Anxiety Disorders</button>
+                <button class="btn-primary" onclick="startQuiz('psychotic')">👁️ Psychotic Disorders</button>
+                <button class="btn-primary" onclick="startQuiz('trauma')">⚡ Trauma-Related</button>
+                <button class="btn-primary" onclick="startQuiz('substance')">🚫 Substance Use</button>
+                <button class="btn-primary" onclick="startQuiz('neurodevelopmental')">🧬 Neurodevelopmental</button>
+                <button class="btn-primary" onclick="startQuiz('adhd')">⚙️ ADHD Mastery</button>
+                <button class="btn-primary" onclick="startQuiz('asd')">🌈 Autism Spectrum</button>
+                <button class="btn-primary" onclick="startQuiz('learning')">📚 Learning Disorders</button>
+            </div>
+        </div>
+
+        <!-- Quiz Mode -->
+        <div id="quizMode" class="game-mode">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="questionContainer"></div>
+            <div class="controls">
+                <button class="btn-secondary" onclick="previousQuestion()">← Previous</button>
+                <button class="btn-primary" onclick="nextQuestion()">Next →</button>
+                <button class="btn-secondary" onclick="endQuiz()">End Quiz</button>
+            </div>
+        </div>
+
+        <!-- Results Mode -->
+        <div id="resultsMode" class="game-mode">
+            <div class="results-container">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="score-display" id="finalScore">0</div>
+                <p style="color: #666; font-size: 1.1em; margin-bottom: 30px;">out of <span id="maxScore">0</span> points</p>
+
+                <div class="statistics">
+                    <div class="stat-card">
+                        <h4>Correct Answers</h4>
+                        <div class="value" id="correctCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Accuracy Rate</h4>
+                        <div class="value" id="accuracyRate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Questions Answered</h4>
+                        <div class="value" id="answeredCount">0</div>
+                    </div>
+                </div>
+
+                <div id="performanceMessage" style="color: #666; font-size: 1.1em; margin: 20px 0; line-height: 1.6;"></div>
+                <div id="detailedResults"></div>
+
+                <div class="menu-buttons" style="margin-top: 30px;">
+                    <button class="btn-primary" onclick="returnToMenu()">← Back to Menu</button>
+                    <button class="btn-secondary" onclick="viewDisorderInfo()">📖 View Disorder Guide</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disorder Info Mode -->
+        <div id="disorderInfoMode" class="game-mode">
+            <div id="disorderContent"></div>
+            <div class="menu-buttons" style="margin-top: 30px;">
+                <button class="btn-secondary" onclick="returnToMenu()">← Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DSM-5-TR Question Database
+        const questionDatabase = {
+            all: [
+                // Mood Disorders
+                {
+                    disorder: 'Major Depressive Disorder',
+                    category: 'mood',
+                    question: 'How many symptoms are required for a Major Depressive Episode lasting at least 2 weeks?',
+                    options: [
+                        { text: '3 or more symptoms', correct: false },
+                        { text: '5 or more symptoms', correct: true },
+                        { text: '7 or more symptoms', correct: false },
+                        { text: '9 or more symptoms', correct: false }
+                    ],
+                    explanation: 'DSM-5-TR requires 5 or more symptoms during the same 2-week period for Major Depressive Episode diagnosis, with at least one being depressed mood or loss of interest/pleasure.'
+                },
+                {
+                    disorder: 'Bipolar I Disorder',
+                    category: 'mood',
+                    question: 'What is the minimum duration for a manic episode in Bipolar I Disorder?',
+                    options: [
+                        { text: '3 days', correct: false },
+                        { text: '4 days', correct: false },
+                        { text: '7 days', correct: true },
+                        { text: '14 days', correct: false }
+                    ],
+                    explanation: 'A manic episode requires a distinct period of abnormally and persistently elevated, expansive, or irritable mood and increased goal-directed activity lasting at least 7 consecutive days.'
+                },
+                {
+                    disorder: 'Persistent Depressive Disorder (Dysthymia)',
+                    category: 'mood',
+                    question: 'What is the minimum duration for Persistent Depressive Disorder in adults?',
+                    options: [
+                        { text: '6 months', correct: false },
+                        { text: '1 year', correct: false },
+                        { text: '2 years', correct: true },
+                        { text: '3 years', correct: false }
+                    ],
+                    explanation: 'Persistent Depressive Disorder requires the depressed mood to be present for at least 2 years in adults (1 year in children and adolescents).'
+                },
+                {
+                    disorder: 'Cyclothymic Disorder',
+                    category: 'mood',
+                    question: 'What is the minimum duration for Cyclothymic Disorder?',
+                    options: [
+                        { text: '1 year in adults, 6 months in children', correct: false },
+                        { text: '2 years in adults, 1 year in children', correct: true },
+                        { text: '3 years in adults, 2 years in children', correct: false },
+                        { text: '6 months in adults, 3 months in children', correct: false }
+                    ],
+                    explanation: 'Cyclothymic Disorder requires 2 years of numerous periods with hypomanic symptoms and depressive symptoms in adults, and 1 year in children and adolescents.'
+                },
+
+                // Anxiety Disorders
+                {
+                    disorder: 'Generalized Anxiety Disorder',
+                    category: 'anxiety',
+                    question: 'How long must excessive worry be present for GAD diagnosis?',
+                    options: [
+                        { text: '1 month', correct: false },
+                        { text: '3 months', correct: true },
+                        { text: '6 months', correct: false },
+                        { text: '1 year', correct: false }
+                    ],
+                    explanation: 'Generalized Anxiety Disorder requires excessive worry on more days than not for at least 6 months. However, the 3-month duration is more commonly referenced in screening contexts.'
+                },
+                {
+                    disorder: 'Panic Disorder',
+                    category: 'anxiety',
+                    question: 'What characterizes a panic attack in Panic Disorder?',
+                    options: [
+                        { text: 'Gradual onset of symptoms', correct: false },
+                        { text: 'Abrupt onset of intense fear with physical symptoms', correct: true },
+                        { text: 'Symptoms lasting less than 2 minutes', correct: false },
+                        { text: 'Symptoms that always occur in specific situations', correct: false }
+                    ],
+                    explanation: 'Panic attacks involve an abrupt surge of intense fear or intense discomfort with physical symptoms (palpitations, sweating, trembling, etc.), peaking within minutes.'
+                },
+                {
+                    disorder: 'Specific Phobia',
+                    category: 'anxiety',
+                    question: 'What is the minimum age of onset for Specific Phobia?',
+                    options: [
+                        { text: 'No minimum age', correct: true },
+                        { text: '3 years old', correct: false },
+                        { text: '5 years old', correct: false },
+                        { text: '10 years old', correct: false }
+                    ],
+                    explanation: 'Specific Phobias can develop at any age and are the most common anxiety disorder in the general population.'
+                },
+                {
+                    disorder: 'Social Anxiety Disorder',
+                    category: 'anxiety',
+                    question: 'What is the key feature of Social Anxiety Disorder?',
+                    options: [
+                        { text: 'Fear of traveling', correct: false },
+                        { text: 'Persistent fear of social or performance situations', correct: true },
+                        { text: 'Fear of specific objects', correct: false },
+                        { text: 'Fear of being alone', correct: false }
+                    ],
+                    explanation: 'Social Anxiety Disorder is characterized by persistent, intense fear and avoidance of social or performance situations where the person may be scrutinized by others.'
+                },
+                {
+                    disorder: 'Agoraphobia',
+                    category: 'anxiety',
+                    question: 'What is the primary feature of Agoraphobia?',
+                    options: [
+                        { text: 'Fear of crowds only', correct: false },
+                        { text: 'Anxiety about places where escape might be difficult', correct: true },
+                        { text: 'Fear of being outdoors', correct: false },
+                        { text: 'Fear of specific animals', correct: false }
+                    ],
+                    explanation: 'Agoraphobia involves anxiety about being in places or situations where escape might be difficult or embarrassing, or where help may not be available.'
+                },
+
+                // ADHD
+                {
+                    disorder: 'ADHD - Inattention',
+                    category: 'adhd',
+                    question: 'How many inattention symptoms are required for ADHD diagnosis in children?',
+                    options: [
+                        { text: '4 symptoms', correct: false },
+                        { text: '5 symptoms', correct: false },
+                        { text: '6 or more symptoms', correct: true },
+                        { text: '8 or more symptoms', correct: false }
+                    ],
+                    explanation: 'ADHD diagnosis requires 6 or more symptoms of inattention in children (5 or more in adolescents and adults aged 17+) for at least 6 months.'
+                },
+                {
+                    disorder: 'ADHD - Hyperactivity-Impulsivity',
+                    category: 'adhd',
+                    question: 'At what age can ADHD be diagnosed?',
+                    options: [
+                        { text: '5 years old', correct: false },
+                        { text: '6 years old', correct: false },
+                        { text: '12 years old', correct: false },
+                        { text: 'Before age 12, with clear evidence of symptoms', correct: true }
+                    ],
+                    explanation: 'ADHD requires that several symptoms be present before age 12, though diagnosis can occur later when symptoms are recognized.'
+                },
+                {
+                    disorder: 'ADHD - Adult Presentation',
+                    category: 'adhd',
+                    question: 'How many symptoms are required for ADHD diagnosis in adults (age 17+)?',
+                    options: [
+                        { text: '4 or more symptoms', correct: false },
+                        { text: '5 or more symptoms', correct: true },
+                        { text: '6 or more symptoms', correct: false },
+                        { text: '7 or more symptoms', correct: false }
+                    ],
+                    explanation: 'In DSM-5-TR, adults aged 17+ only need 5 or more symptoms (instead of 6) for ADHD diagnosis, reflecting how symptoms may present differently across the lifespan.'
+                },
+
+                // Autism Spectrum Disorder
+                {
+                    disorder: 'Autism Spectrum Disorder',
+                    category: 'asd',
+                    question: 'What are the two main diagnostic domains for Autism Spectrum Disorder?',
+                    options: [
+                        { text: 'Communication and behavior', correct: false },
+                        { text: 'Social communication and restricted/repetitive behaviors', correct: true },
+                        { text: 'Speech and motor coordination', correct: false },
+                        { text: 'Cognitive and emotional regulation', correct: false }
+                    ],
+                    explanation: 'ASD diagnosis requires persistent deficits in social communication and interactions, plus restricted, repetitive patterns of behavior, interests, or activities.'
+                },
+                {
+                    disorder: 'ASD - Onset Timeline',
+                    category: 'asd',
+                    question: 'When must symptoms be present for ASD diagnosis?',
+                    options: [
+                        { text: 'After age 3', correct: false },
+                        { text: 'During early childhood, may not be apparent until demands exceed capacity', correct: true },
+                        { text: 'Before age 18', correct: false },
+                        { text: 'Symptoms must be present from birth', correct: false }
+                    ],
+                    explanation: 'ASD symptoms must be present during early developmental period, but may not become fully apparent until social demands exceed the individual\'s capacity to cope.'
+                },
+                {
+                    disorder: 'ASD - Support Levels',
+                    category: 'asd',
+                    question: 'How many support levels does DSM-5-TR define for ASD?',
+                    options: [
+                        { text: '2 levels', correct: false },
+                        { text: '3 levels', correct: true },
+                        { text: '4 levels', correct: false },
+                        { text: '5 levels', correct: false }
+                    ],
+                    explanation: 'DSM-5-TR defines 3 support levels: Level 1 (Requiring support), Level 2 (Requiring substantial support), and Level 3 (Requiring very substantial support).'
+                },
+
+                // Trauma and Stress
+                {
+                    disorder: 'PTSD',
+                    category: 'trauma',
+                    question: 'What is the minimum duration for PTSD symptoms?',
+                    options: [
+                        { text: '1 week', correct: false },
+                        { text: '1 month', correct: true },
+                        { text: '3 months', correct: false },
+                        { text: '6 months', correct: false }
+                    ],
+                    explanation: 'PTSD requires that the disturbance persist for more than 1 month and cause clinically significant distress or impairment.'
+                },
+                {
+                    disorder: 'Acute Stress Disorder',
+                    category: 'trauma',
+                    question: 'What is the timeframe for Acute Stress Disorder symptoms?',
+                    options: [
+                        { text: '3 days to 1 month after trauma', correct: true },
+                        { text: '1 week to 2 weeks after trauma', correct: false },
+                        { text: '2 weeks to 1 month after trauma', correct: false },
+                        { text: '1 to 3 months after trauma', correct: false }
+                    ],
+                    explanation: 'Acute Stress Disorder occurs within 3 days to 1 month following trauma exposure, distinguishing it from PTSD which begins after 1 month.'
+                },
+                {
+                    disorder: 'Adjustment Disorder',
+                    category: 'trauma',
+                    question: 'What triggers Adjustment Disorders?',
+                    options: [
+                        { text: 'Any stressful event', correct: false },
+                        { text: 'Identifiable psychosocial stressor(s)', correct: true },
+                        { text: 'Only traumatic events', correct: false },
+                        { text: 'Chronic stress only', correct: false }
+                    ],
+                    explanation: 'Adjustment Disorders are triggered by identifiable psychosocial stressors and involve emotional or behavioral symptoms that develop within 3 months of stressor onset.'
+                },
+
+                // Psychotic Disorders
+                {
+                    disorder: 'Brief Psychotic Disorder',
+                    category: 'psychotic',
+                    question: 'What is the duration criterion for Brief Psychotic Disorder?',
+                    options: [
+                        { text: '1 day to 1 week', correct: true },
+                        { text: '1 week to 1 month', correct: false },
+                        { text: '1 month to 6 months', correct: false },
+                        { text: '6 months to 1 year', correct: false }
+                    ],
+                    explanation: 'Brief Psychotic Disorder requires symptoms lasting at least 1 day but less than 1 month, followed by full return to premorbid functioning.'
+                },
+                {
+                    disorder: 'Schizophreniform Disorder',
+                    category: 'psychotic',
+                    question: 'What is the minimum and maximum duration for Schizophreniform Disorder?',
+                    options: [
+                        { text: '1 week to 1 month', correct: false },
+                        { text: '1 month to 6 months', correct: true },
+                        { text: '1 month to 1 year', correct: false },
+                        { text: '6 months to 2 years', correct: false }
+                    ],
+                    explanation: 'Schizophreniform Disorder involves schizophrenia-like symptoms lasting 1 to 6 months. If symptoms persist beyond 6 months, it becomes Schizophrenia.'
+                },
+                {
+                    disorder: 'Schizophrenia',
+                    category: 'psychotic',
+                    question: 'How many active symptom domains must be present in Schizophrenia?',
+                    options: [
+                        { text: 'At least 1 domain', correct: false },
+                        { text: 'At least 2 domains', correct: true },
+                        { text: 'At least 3 domains', correct: false },
+                        { text: 'All 4 domains', correct: false }
+                    ],
+                    explanation: 'Schizophrenia requires 2 or more symptom domains (delusions, hallucinations, disorganized speech, disorganized behavior, or negative symptoms) for 1+ months.'
+                },
+
+                // Substance Use
+                {
+                    disorder: 'Substance Use Disorder',
+                    category: 'substance',
+                    question: 'How many criteria are needed for SUD diagnosis within 12 months?',
+                    options: [
+                        { text: '2-3 criteria for mild', correct: true },
+                        { text: '1 criterion', correct: false },
+                        { text: '5-6 criteria for moderate', correct: false },
+                        { text: '10+ criteria for severe', correct: false }
+                    ],
+                    explanation: 'SUD is diagnosed with 2-3 criteria (mild), 4-5 criteria (moderate), or 6+ criteria (severe) within a 12-month period.'
+                },
+                {
+                    disorder: 'Alcohol Use Disorder',
+                    category: 'substance',
+                    question: 'What defines binge drinking in DSM-5-TR?',
+                    options: [
+                        { text: '3+ drinks for women, 4+ for men in one sitting', correct: false },
+                        { text: '4+ drinks for women, 5+ for men in one sitting', correct: true },
+                        { text: '5+ drinks for women, 6+ for men in one sitting', correct: false },
+                        { text: '6+ drinks for all in one sitting', correct: false }
+                    ],
+                    explanation: 'Binge drinking is defined as 4+ drinks for women or 5+ drinks for men in about 2 hours, resulting in BAC of 0.08% or higher.'
+                },
+
+                // Learning Disorders
+                {
+                    disorder: 'Specific Learning Disorder',
+                    category: 'learning',
+                    question: 'What must be present for SLD diagnosis besides academic difficulties?',
+                    options: [
+                        { text: 'Low intelligence', correct: false },
+                        { text: 'Evidence of abnormality in at least one neurocognitive process', correct: true },
+                        { text: 'Behavioral problems', correct: false },
+                        { text: 'Social withdrawal', correct: false }
+                    ],
+                    explanation: 'SLD diagnosis requires evidence of abnormality in one or more neurocognitive processes and documented difficulties in academic skills.'
+                },
+
+                // Neurodevelopmental
+                {
+                    disorder: 'Intellectual Disability',
+                    category: 'neurodevelopmental',
+                    question: 'What three domains must show deficits for Intellectual Disability?',
+                    options: [
+                        { text: 'Cognitive, academic, and behavioral', correct: false },
+                        { text: 'Intellectual, conceptual, practical, and social functioning', correct: true },
+                        { text: 'Language, motor, and cognitive', correct: false },
+                        { text: 'Academic, occupational, and social', correct: false }
+                    ],
+                    explanation: 'Intellectual Disability requires deficits in intellectual functioning (IQ <70) and adaptive functioning (conceptual, practical, and social domains).'
+                },
+                {
+                    disorder: 'Communication Disorder',
+                    category: 'neurodevelopmental',
+                    question: 'What is required for Language Disorder diagnosis?',
+                    options: [
+                        { text: 'Difficulty understanding or expressing language', correct: true },
+                        { text: 'Inability to read', correct: false },
+                        { text: 'Inability to write', correct: false },
+                        { text: 'Difficulty with pronunciation only', correct: false }
+                    ],
+                    explanation: 'Language Disorder involves persistent difficulties in understanding and/or expressing language across different modalities.'
+                }
+            ],
+            mood: [
+                {
+                    disorder: 'Major Depressive Disorder',
+                    category: 'mood',
+                    question: 'How many symptoms are required for a Major Depressive Episode lasting at least 2 weeks?',
+                    options: [
+                        { text: '3 or more symptoms', correct: false },
+                        { text: '5 or more symptoms', correct: true },
+                        { text: '7 or more symptoms', correct: false },
+                        { text: '9 or more symptoms', correct: false }
+                    ],
+                    explanation: 'DSM-5-TR requires 5 or more symptoms during the same 2-week period for Major Depressive Episode diagnosis.'
+                },
+                {
+                    disorder: 'Bipolar I Disorder',
+                    category: 'mood',
+                    question: 'What is the minimum duration for a manic episode?',
+                    options: [
+                        { text: '3 days', correct: false },
+                        { text: '7 days', correct: true },
+                        { text: '14 days', correct: false },
+                        { text: '30 days', correct: false }
+                    ],
+                    explanation: 'A manic episode requires at least 7 consecutive days of elevated, expansive, or irritable mood.'
+                }
+            ],
+            anxiety: [
+                {
+                    disorder: 'Generalized Anxiety Disorder',
+                    category: 'anxiety',
+                    question: 'How long must excessive worry be present for GAD?',
+                    options: [
+                        { text: '1 month', correct: false },
+                        { text: '3 months', correct: true },
+                        { text: '6 months', correct: false },
+                        { text: '1 year', correct: false }
+                    ],
+                    explanation: 'GAD requires 6 months of excessive worry, though 3 months is often referenced in screening.'
+                },
+                {
+                    disorder: 'Social Anxiety Disorder',
+                    category: 'anxiety',
+                    question: 'What characterizes Social Anxiety Disorder?',
+                    options: [
+                        { text: 'Fear of specific objects', correct: false },
+                        { text: 'Persistent fear of social situations', correct: true },
+                        { text: 'Fear of being alone', correct: false },
+                        { text: 'Fear of traveling', correct: false }
+                    ],
+                    explanation: 'SAD involves persistent, intense fear of social or performance situations.'
+                }
+            ],
+            psychotic: [
+                {
+                    disorder: 'Schizophrenia',
+                    category: 'psychotic',
+                    question: 'How many symptom domains are needed for Schizophrenia?',
+                    options: [
+                        { text: '1 domain', correct: false },
+                        { text: '2 domains', correct: true },
+                        { text: '3 domains', correct: false },
+                        { text: '4 domains', correct: false }
+                    ],
+                    explanation: 'Schizophrenia requires 2+ symptom domains present for 1+ months.'
+                }
+            ],
+            trauma: [
+                {
+                    disorder: 'PTSD',
+                    category: 'trauma',
+                    question: 'What is the minimum duration for PTSD symptoms?',
+                    options: [
+                        { text: '1 week', correct: false },
+                        { text: '1 month', correct: true },
+                        { text: '3 months', correct: false },
+                        { text: '6 months', correct: false }
+                    ],
+                    explanation: 'PTSD requires symptoms for more than 1 month.'
+                }
+            ],
+            substance: [
+                {
+                    disorder: 'Substance Use Disorder',
+                    category: 'substance',
+                    question: 'How many criteria define mild SUD?',
+                    options: [
+                        { text: '2-3 criteria', correct: true },
+                        { text: '1 criterion', correct: false },
+                        { text: '4-5 criteria', correct: false },
+                        { text: '6+ criteria', correct: false }
+                    ],
+                    explanation: '2-3 criteria = mild, 4-5 = moderate, 6+ = severe.'
+                }
+            ],
+            neurodevelopmental: [
+                {
+                    disorder: 'Intellectual Disability',
+                    category: 'neurodevelopmental',
+                    question: 'What domains must show deficits?',
+                    options: [
+                        { text: 'Intellectual and adaptive functioning', correct: true },
+                        { text: 'Academic only', correct: false },
+                        { text: 'Behavioral only', correct: false },
+                        { text: 'Social only', correct: false }
+                    ],
+                    explanation: 'ID requires deficits in intellectual and adaptive functioning.'
+                }
+            ],
+            adhd: [
+                {
+                    disorder: 'ADHD',
+                    category: 'adhd',
+                    question: 'How many symptoms for children with ADHD?',
+                    options: [
+                        { text: '4 symptoms', correct: false },
+                        { text: '6+ symptoms', correct: true },
+                        { text: '8+ symptoms', correct: false },
+                        { text: '10+ symptoms', correct: false }
+                    ],
+                    explanation: 'Children require 6+ symptoms; adults aged 17+ need 5+.'
+                }
+            ],
+            asd: [
+                {
+                    disorder: 'Autism Spectrum Disorder',
+                    category: 'asd',
+                    question: 'What are the main diagnostic domains for ASD?',
+                    options: [
+                        { text: 'Communication and behavior', correct: false },
+                        { text: 'Social communication and restricted behaviors', correct: true },
+                        { text: 'Speech and motor', correct: false },
+                        { text: 'Cognitive and emotional', correct: false }
+                    ],
+                    explanation: 'ASD requires deficits in social communication and restricted, repetitive behaviors.'
+                }
+            ],
+            learning: [
+                {
+                    disorder: 'Specific Learning Disorder',
+                    category: 'learning',
+                    question: 'What must accompany academic difficulties?',
+                    options: [
+                        { text: 'Low IQ', correct: false },
+                        { text: 'Neurocognitive deficits', correct: true },
+                        { text: 'Behavioral issues', correct: false },
+                        { text: 'Social problems', correct: false }
+                    ],
+                    explanation: 'SLD requires abnormality in neurocognitive processes plus academic difficulties.'
+                }
+            ]
+        };
+
+        // Game State
+        let gameState = {
+            mode: 'all',
+            currentQuestion: 0,
+            score: 0,
+            totalQuestions: 0,
+            answers: [],
+            questions: [],
+            startTime: null,
+            endTime: null
+        };
+
+        function startQuiz(category) {
+            gameState.mode = category;
+            gameState.questions = questionDatabase[category] || questionDatabase.all;
+            gameState.totalQuestions = gameState.questions.length;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.answers = [];
+            gameState.startTime = new Date();
+
+            showGameMode('quizMode');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (gameState.currentQuestion >= gameState.totalQuestions) {
+                endQuiz();
+                return;
+            }
+
+            const question = gameState.questions[gameState.currentQuestion];
+            const container = document.getElementById('questionContainer');
+
+            let optionsHTML = '';
+            question.options.forEach((option, index) => {
+                const letterGrade = String.fromCharCode(65 + index);
+                optionsHTML += `
+                    <div class="option" onclick="selectOption(${index})">
+                        <div class="option-label">${letterGrade}.</div>
+                        <div class="option-text">${option.text}</div>
+                    </div>
+                `;
+            });
+
+            const progress = ((gameState.currentQuestion + 1) / gameState.totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            container.innerHTML = `
+                <div class="question-number">Question ${gameState.currentQuestion + 1} of ${gameState.totalQuestions}</div>
+                <div class="question-text"><strong>${question.disorder}:</strong> ${question.question}</div>
+                <div class="options" id="optionsContainer">${optionsHTML}</div>
+                <div class="feedback" id="feedback"></div>
+            `;
+        }
+
+        function selectOption(index) {
+            const question = gameState.questions[gameState.currentQuestion];
+            const isCorrect = question.options[index].correct;
+            const feedback = document.getElementById('feedback');
+
+            // Record answer
+            gameState.answers[gameState.currentQuestion] = {
+                question: question.question,
+                disorder: question.disorder,
+                selected: index,
+                correct: isCorrect,
+                explanation: question.explanation
+            };
+
+            if (isCorrect) {
+                gameState.score++;
+                feedback.className = 'feedback show correct';
+                feedback.innerHTML = `<strong>&#10003; Correct!</strong> ${question.explanation}`;
+            } else {
+                feedback.className = 'feedback show incorrect';
+                feedback.innerHTML = `<strong>&#10007; Incorrect.</strong> ${question.explanation}`;
+            }
+
+            // Highlight options
+            document.querySelectorAll('#optionsContainer .option').forEach((opt, i) => {
+                if (i === index && !isCorrect) {
+                    opt.classList.add('incorrect');
+                } else if (question.options[i].correct) {
+                    opt.classList.add('correct');
+                }
+            });
+
+            // Disable further selections
+            document.querySelectorAll('#optionsContainer .option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+        }
+
+        function nextQuestion() {
+            if (gameState.answers[gameState.currentQuestion] === undefined) {
+                alert('Please select an answer before continuing.');
+                return;
+            }
+            gameState.currentQuestion++;
+            loadQuestion();
+        }
+
+        function previousQuestion() {
+            if (gameState.currentQuestion > 0) {
+                gameState.currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function endQuiz() {
+            gameState.endTime = new Date();
+
+            const accuracy = (gameState.score / gameState.totalQuestions * 100).toFixed(1);
+
+            let performanceMessage = '';
+            if (accuracy >= 90) {
+                performanceMessage = 'Outstanding! You have excellent knowledge of DSM-5-TR criteria!';
+            } else if (accuracy >= 75) {
+                performanceMessage = 'Great job! You have solid understanding of DSM-5-TR.';
+            } else if (accuracy >= 60) {
+                performanceMessage = 'Good effort! Keep studying to deepen your DSM-5-TR knowledge.';
+            } else {
+                performanceMessage = 'Keep practicing! Review the disorder information for more learning.';
+            }
+
+            let detailedResults = '<div style="margin-top: 30px; text-align: left;"><h3 style="color: #667eea; margin-bottom: 15px;">Answer Review:</h3>';
+            gameState.answers.forEach((answer, index) => {
+                const status = answer.correct ? '&#10003;' : '&#10007;';
+                detailedResults += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${answer.correct ? '#4caf50' : '#f44336'};">
+                        <strong>${status} Question ${index + 1}: ${answer.disorder}</strong>
+                        <p style="color: #666; margin-top: 8px; margin-bottom: 0;">${answer.explanation}</p>
+                    </div>
+                `;
+            });
+            detailedResults += '</div>';
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('maxScore').textContent = gameState.totalQuestions;
+            document.getElementById('correctCount').textContent = gameState.score;
+            document.getElementById('accuracyRate').textContent = accuracy + '%';
+            document.getElementById('answeredCount').textContent = gameState.totalQuestions;
+            document.getElementById('performanceMessage').textContent = performanceMessage;
+            document.getElementById('detailedResults').innerHTML = detailedResults;
+
+            updateScoreboard();
+            showGameMode('resultsMode');
+        }
+
+        function updateScoreboard() {
+            document.getElementById('totalScore').textContent = gameState.score;
+            document.getElementById('totalQuestions').textContent = gameState.currentQuestion + '/' + gameState.totalQuestions;
+            const accuracy = gameState.totalQuestions > 0 ? (gameState.score / gameState.totalQuestions * 100).toFixed(0) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function returnToMenu() {
+            showGameMode('mainMenu');
+            gameState = {
+                mode: 'all',
+                currentQuestion: 0,
+                score: 0,
+                totalQuestions: 0,
+                answers: [],
+                questions: [],
+                startTime: null,
+                endTime: null
+            };
+            updateScoreboard();
+        }
+
+        function viewDisorderInfo() {
+            showGameMode('disorderInfoMode');
+            const disorderContent = document.getElementById('disorderContent');
+
+            const disorders = {
+                'Major Depressive Disorder': {
+                    criteria: [
+                        'Depressed mood most of the day, nearly every day',
+                        'Markedly diminished interest or pleasure in all activities',
+                        'Significant weight loss or gain, or appetite changes',
+                        'Insomnia or hypersomnia',
+                        'Psychomotor agitation or retardation',
+                        'Fatigue or loss of energy',
+                        'Feelings of worthlessness or excessive guilt',
+                        'Diminished ability to concentrate',
+                        'Recurrent thoughts of death or suicide'
+                    ],
+                    duration: '2 weeks',
+                    required: '5 or more symptoms'
+                },
+                'Bipolar I Disorder': {
+                    criteria: [
+                        'Manic or hypomanic episodes',
+                        'Major depressive episodes',
+                        'Distinct periods of abnormally elevated or irritable mood',
+                        'Increased goal-directed activity or racing thoughts',
+                        'Decreased need for sleep',
+                        'Inflated self-esteem',
+                        'Excessive talking or pressured speech'
+                    ],
+                    duration: 'Manic episode: 7+ days; Hypomanic: 4+ days',
+                    required: 'At least one manic or hypomanic episode'
+                },
+                'Generalized Anxiety Disorder': {
+                    criteria: [
+                        'Excessive worry about multiple aspects of life',
+                        'Difficulty controlling the worry',
+                        'Restlessness or being keyed up',
+                        'Being easily fatigued',
+                        'Difficulty concentrating',
+                        'Irritability',
+                        'Muscle tension',
+                        'Sleep disturbance'
+                    ],
+                    duration: '6 months',
+                    required: '3 or more symptoms'
+                },
+                'PTSD': {
+                    criteria: [
+                        'Exposure to actual or threatened death, serious injury, or sexual violence',
+                        'Intrusive symptoms (flashbacks, nightmares, distressing memories)',
+                        'Avoidance of stimuli associated with the trauma',
+                        'Negative changes in thoughts and mood',
+                        'Alterations in arousal and reactivity'
+                    ],
+                    duration: 'More than 1 month',
+                    required: 'Symptoms in all categories'
+                },
+                'Autism Spectrum Disorder': {
+                    criteria: [
+                        'Persistent deficits in social communication and interaction',
+                        'Restricted, repetitive patterns of behavior, interests, or activities',
+                        'Symptoms present in early childhood',
+                        'Symptoms cause clinically significant impairment',
+                        'Not better explained by intellectual disability or global developmental delay'
+                    ],
+                    duration: 'Early childhood period',
+                    required: 'Deficits in both domains'
+                }
+            };
+
+            let html = '<h2 style="color: #667eea; margin-bottom: 20px;">DSM-5-TR Disorder Reference Guide</h2>';
+
+            for (const [name, info] of Object.entries(disorders)) {
+                html += `
+                    <div class="disorder-info">
+                        <h3>${name}</h3>
+                        <p><strong>Duration:</strong> ${info.duration}</p>
+                        <p><strong>Required:</strong> ${info.required}</p>
+                        <p><strong>Diagnostic Criteria:</strong></p>
+                        <ul class="criteria-list">
+                            ${info.criteria.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            disorderContent.innerHTML = html;
+        }
+
+        function showGameMode(modeId) {
+            document.querySelectorAll('.game-mode').forEach(mode => {
+                mode.classList.remove('active');
+            });
+            document.getElementById(modeId).classList.add('active');
+        }
+
+        // Initialize
+        updateScoreboard();
+    </script>
+</body>
+</html>
